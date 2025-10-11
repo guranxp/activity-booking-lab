@@ -1,4 +1,4 @@
-package com.guranxp;
+package com.guranxp.v1;
 
 public class App {
     public static void main(String[] args) {
