@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.guranxp.spring.v1.domain.group.GroupTestBuilder.createdGroup;
 import static com.guranxp.spring.v1.domain.group.GroupTestBuilder.defaultGroup;
 import static com.guranxp.spring.v1.domain.group.GroupTestConstants.*;
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -18,7 +17,10 @@ public class ScheduleEventBehaviour {
 
     @Test
     public void shouldReturnEventScheduledEventWhenScheduleEventCmdIsTriggered() {
-        final List<Event> events = createdGroup(GROUP_ID, GROUP_NAME).handle(new ScheduleEventCommand(GROUP_ID, EVENT_NAME));
+        final List<Event> events = defaultGroup()
+                .withAppliedEvents(new GroupCreatedEvent(GROUP_ID, GROUP_NAME))
+                .build()
+                .handle(new ScheduleEventCommand(GROUP_ID, EVENT_NAME));
         assertThat(events, hasSize(1));
         assertThat(events, hasItem(new EventScheduledEvent(GROUP_ID, EVENT_NAME)));
     }
