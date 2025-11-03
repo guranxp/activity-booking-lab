@@ -2,30 +2,32 @@ package com.guranxp.spring.v1.domain.group;
 
 import com.guranxp.spring.v1.domain.Aggregate;
 import com.guranxp.spring.v1.domain.Event;
-import com.guranxp.spring.v1.domain.EventPublisher;
 import com.guranxp.spring.v1.domain.EventSourcingHandler;
-import com.guranxp.spring.v1.domain.group.scheduleevent.EventScheduledEvent;
-import com.guranxp.spring.v1.domain.group.scheduleevent.EventSchedulingFailedEvent;
-import com.guranxp.spring.v1.domain.group.scheduleevent.ScheduleEventCmd;
+import com.guranxp.spring.v1.domain.group.creategroup.CreateGroupCommand;
+import com.guranxp.spring.v1.domain.group.creategroup.GroupAlreadyCreatedEvent;
+import com.guranxp.spring.v1.domain.group.creategroup.GroupCreatedEvent;
+import com.guranxp.spring.v1.domain.group.scheduleevent.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Group extends Aggregate {
 
-    private final String groupId;
-    private final EventPublisher eventPublisher;
+    private String groupId;
+    private String groupName;
     private final List<String> scheduledEventNames = new ArrayList<>();
 
-    public Group(String groupId, final EventPublisher eventPublisher) {
-        this.groupId = groupId;
-        this.eventPublisher = eventPublisher;
-    }
-
     public Group apply(final List<Event> eventStream) {
-        final Group result = new Group(groupId, eventPublisher);
+        final Group result = new Group();
         eventStream.forEach(result::on);
         return result;
+    }
+
+    @EventSourcingHandler
+    @SuppressWarnings("unused")
+    public void on(GroupCreatedEvent groupCreatedEvent) {
+        groupId = groupCreatedEvent.groupId();
+        groupName = groupCreatedEvent.groupName();
     }
 
     @EventSourcingHandler
@@ -34,11 +36,19 @@ public class Group extends Aggregate {
         scheduledEventNames.add(eventScheduledEvent.eventName());
     }
 
-    public void handle(ScheduleEventCmd scheduleEventCmd) {
+    public List<Event> handle(final ScheduleEventCommand scheduleEventCmd) {
         if (scheduledEventNames.contains(scheduleEventCmd.eventName())) {
-            eventPublisher.publish(new EventSchedulingFailedEvent(groupId));
+            return List.of(new EventAlreadyScheduledEvent(groupId, scheduleEventCmd.eventName()));
         } else {
-            eventPublisher.publish(new EventScheduledEvent(groupId, scheduleEventCmd.eventName()));
+            return List.of(new EventScheduledEvent(groupId, scheduleEventCmd.eventName()));
+        }
+    }
+
+    public List<Event> handle(final CreateGroupCommand createGroupCommand) {
+        if (groupId != null) {
+            return List.of(new GroupAlreadyCreatedEvent(groupId));
+        } else {
+            return List.of(new GroupCreatedEvent(createGroupCommand.groupId(), createGroupCommand.groupName()));
         }
     }
 }
