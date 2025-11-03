@@ -8,16 +8,13 @@ import java.util.List;
 
 import static com.guranxp.spring.v1.domain.group.GroupTestBuilder.createdGroup;
 import static com.guranxp.spring.v1.domain.group.GroupTestBuilder.defaultGroup;
+import static com.guranxp.spring.v1.domain.group.GroupTestConstants.*;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 
 @SuppressWarnings("NewClassNamingConvention")
 public class ScheduleEventBehaviour {
-
-    private static final String GROUP_ID = "groupId";
-    private static final String GROUP_NAME = "Group name";
-    private static final String EVENT_NAME = "Event name";
 
     @Test
     public void shouldReturnEventScheduledEventWhenScheduleEventCmdIsTriggered() {

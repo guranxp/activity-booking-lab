@@ -7,15 +7,14 @@ import java.util.List;
 
 import static com.guranxp.spring.v1.domain.group.GroupTestBuilder.createdGroup;
 import static com.guranxp.spring.v1.domain.group.GroupTestBuilder.emptyGroup;
+import static com.guranxp.spring.v1.domain.group.GroupTestConstants.GROUP_ID;
+import static com.guranxp.spring.v1.domain.group.GroupTestConstants.GROUP_NAME;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 
 @SuppressWarnings("NewClassNamingConvention")
 public class CreateGroupBehaviour {
-
-    public static final String GROUP_ID = "groupId";
-    public static final String GROUP_NAME = "Group name";
 
     @Test
     public void shouldReturnGroupCreatedEventWhenCreateGroupCommandIsTriggered() {
