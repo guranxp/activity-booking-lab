@@ -4,6 +4,6 @@ import java.util.concurrent.CompletableFuture;
 
 public interface CommandBus {
 
-    CompletableFuture<CommandResult> dispatch(Command command);
+    <T extends Aggregate<T>> CompletableFuture<CommandResult> dispatch(Command<T> command);
 
 }

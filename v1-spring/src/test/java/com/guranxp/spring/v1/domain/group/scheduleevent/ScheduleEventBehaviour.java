@@ -1,6 +1,7 @@
 package com.guranxp.spring.v1.domain.group.scheduleevent;
 
 import com.guranxp.spring.v1.domain.Event;
+import com.guranxp.spring.v1.domain.group.Group;
 import com.guranxp.spring.v1.domain.group.creategroup.GroupCreatedEvent;
 import org.junit.jupiter.api.Test;
 
@@ -18,23 +19,23 @@ public class ScheduleEventBehaviour {
     @Test
     public void shouldReturnEventScheduledEventWhenScheduleEventCmdIsTriggered() {
         final List<Event> events = defaultGroup()
-                .withAppliedEvents(new GroupCreatedEvent(GROUP_ID, GROUP_NAME))
+                .withAppliedEvents(new GroupCreatedEvent(GROUP_AGGREGATE_ID, GROUP_NAME))
                 .build()
-                .handle(new ScheduleEventCommand(GROUP_ID, EVENT_NAME));
+                .handle(new ScheduleEventCommand(GROUP_AGGREGATE_ID, Group.class, EVENT_NAME));
         assertThat(events, hasSize(1));
-        assertThat(events, hasItem(new EventScheduledEvent(GROUP_ID, EVENT_NAME)));
+        assertThat(events, hasItem(new EventScheduledEvent(GROUP_AGGREGATE_ID, EVENT_NAME)));
     }
 
     @Test
     public void shouldReturnEventAlreadyScheduledEventWhenSchedulingEventWithExistingName() {
         final List<Event> events = defaultGroup()
                 .withAppliedEvents(
-                        new GroupCreatedEvent(GROUP_ID, GROUP_NAME),
-                        new EventScheduledEvent(GROUP_ID, EVENT_NAME)
+                        new GroupCreatedEvent(GROUP_AGGREGATE_ID, GROUP_NAME),
+                        new EventScheduledEvent(GROUP_AGGREGATE_ID, EVENT_NAME)
                 )
-                .build().handle(new ScheduleEventCommand(GROUP_ID, EVENT_NAME));
+                .build().handle(new ScheduleEventCommand(GROUP_AGGREGATE_ID, Group.class, EVENT_NAME));
         assertThat(events, hasSize(1));
-        assertThat(events, hasItem(new EventAlreadyScheduledEvent(GROUP_ID, EVENT_NAME)));
+        assertThat(events, hasItem(new EventAlreadyScheduledEvent(GROUP_AGGREGATE_ID, EVENT_NAME)));
     }
 
 }

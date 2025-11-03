@@ -1,6 +1,7 @@
 package com.guranxp.spring.v1.domain.group;
 
 import com.guranxp.spring.v1.domain.Aggregate;
+import com.guranxp.spring.v1.domain.CommandHandler;
 import com.guranxp.spring.v1.domain.Event;
 import com.guranxp.spring.v1.domain.EventSourcingHandler;
 import com.guranxp.spring.v1.domain.group.creategroup.CreateGroupCommand;
@@ -11,22 +12,16 @@ import com.guranxp.spring.v1.domain.group.scheduleevent.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Group extends Aggregate {
+public class Group extends Aggregate<Group> {
 
-    private String groupId;
+    private String aggregateId;
     private String groupName;
     private final List<String> scheduledEventNames = new ArrayList<>();
-
-    public Group apply(final List<Event> eventStream) {
-        final Group result = new Group();
-        eventStream.forEach(result::on);
-        return result;
-    }
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void on(GroupCreatedEvent groupCreatedEvent) {
-        groupId = groupCreatedEvent.groupId();
+        aggregateId = groupCreatedEvent.aggregateId();
         groupName = groupCreatedEvent.groupName();
     }
 
@@ -36,19 +31,21 @@ public class Group extends Aggregate {
         scheduledEventNames.add(eventScheduledEvent.eventName());
     }
 
+    @CommandHandler
     public List<Event> handle(final ScheduleEventCommand scheduleEventCmd) {
-        if (scheduledEventNames.contains(scheduleEventCmd.eventName())) {
-            return List.of(new EventAlreadyScheduledEvent(groupId, scheduleEventCmd.eventName()));
+        if (scheduledEventNames.contains(scheduleEventCmd.eventName)) {
+            return List.of(new EventAlreadyScheduledEvent(aggregateId, scheduleEventCmd.eventName));
         } else {
-            return List.of(new EventScheduledEvent(groupId, scheduleEventCmd.eventName()));
+            return List.of(new EventScheduledEvent(aggregateId, scheduleEventCmd.eventName));
         }
     }
 
+    @CommandHandler
     public List<Event> handle(final CreateGroupCommand createGroupCommand) {
-        if (groupId != null) {
-            return List.of(new GroupAlreadyCreatedEvent(groupId));
+        if (aggregateId != null) {
+            return List.of(new GroupAlreadyCreatedEvent(aggregateId));
         } else {
-            return List.of(new GroupCreatedEvent(createGroupCommand.groupId(), createGroupCommand.groupName()));
+            return List.of(new GroupCreatedEvent(createGroupCommand.aggregateId(), createGroupCommand.groupName()));
         }
     }
 }
