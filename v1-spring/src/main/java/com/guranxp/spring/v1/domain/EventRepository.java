@@ -8,5 +8,3 @@ public interface EventRepository {
 
     void saveEvents(Class<? extends Aggregate<?>> aggregateType, String aggregateId, List<Event> events);
 }
-
-

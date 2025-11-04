@@ -3,6 +3,9 @@ package com.guranxp.spring.v1.domain.group.scheduleevent;
 import com.guranxp.spring.v1.domain.Event;
 import com.guranxp.spring.v1.domain.group.Group;
 import com.guranxp.spring.v1.domain.group.creategroup.GroupCreatedEvent;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -23,7 +26,7 @@ public class ScheduleEventBehaviour {
                 .build()
                 .handle(new ScheduleEventCommand(GROUP_AGGREGATE_ID, Group.class, EVENT_NAME));
         assertThat(events, hasSize(1));
-        assertThat(events, hasItem(new EventScheduledEvent(GROUP_AGGREGATE_ID, EVENT_NAME)));
+        assertThat(events, hasItem(eventScheduledEventWith(GROUP_AGGREGATE_ID, EVENT_NAME)));
     }
 
     @Test
@@ -35,7 +38,36 @@ public class ScheduleEventBehaviour {
                 )
                 .build().handle(new ScheduleEventCommand(GROUP_AGGREGATE_ID, Group.class, EVENT_NAME));
         assertThat(events, hasSize(1));
-        assertThat(events, hasItem(new EventAlreadyScheduledEvent(GROUP_AGGREGATE_ID, EVENT_NAME)));
+        assertThat(events, hasItem(eventAlreadyScheduledEventWith(GROUP_AGGREGATE_ID, EVENT_NAME)));
     }
 
+    public static Matcher<Event> eventScheduledEventWith(String expectedAggregateId, String expectedEventName) {
+        return new TypeSafeMatcher<>() {
+            @Override
+            protected boolean matchesSafely(Event event) {
+                if (!(event instanceof EventScheduledEvent e)) return false;
+                return expectedAggregateId.equals(e.getAggregateId()) && expectedEventName.equals(e.getEventName());
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("EventScheduledEvent with id=" + expectedAggregateId + " and event name=" + expectedEventName);
+            }
+        };
+    }
+
+    public static Matcher<Event> eventAlreadyScheduledEventWith(String expectedAggregateId, String expectedEventName) {
+        return new TypeSafeMatcher<>() {
+            @Override
+            protected boolean matchesSafely(Event event) {
+                if (!(event instanceof EventAlreadyScheduledEvent e)) return false;
+                return expectedAggregateId.equals(e.getAggregateId()) && expectedEventName.equals(e.getEventName());
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("EventAlreadyScheduledEvent with id=" + expectedAggregateId + " and event name=" + expectedEventName);
+            }
+        };
+    }
 }

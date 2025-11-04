@@ -21,14 +21,14 @@ public class Group extends Aggregate<Group> {
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void on(GroupCreatedEvent groupCreatedEvent) {
-        aggregateId = groupCreatedEvent.aggregateId();
-        groupName = groupCreatedEvent.groupName();
+        aggregateId = groupCreatedEvent.getAggregateId();
+        groupName = groupCreatedEvent.getGroupName();
     }
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void on(EventScheduledEvent eventScheduledEvent) {
-        scheduledEventNames.add(eventScheduledEvent.eventName());
+        scheduledEventNames.add(eventScheduledEvent.getEventName());
     }
 
     @CommandHandler
